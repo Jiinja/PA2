@@ -206,7 +206,8 @@ Record* recordEditor(Record input)
 		printf("(5) Length (M):   %d\n", input.songLength.minutes);
 		printf("(6) Length (S):   %d\n", input.songLength.seconds);
 		printf("(7) Times Played: %d\n", input.timesPlayed);
-		printf("(8) Rating:       %d\n\n", input.rating);
+		printf("(8) Rating:       %d\n", input.rating);
+		printf("(9) DONE EDITING\n\n");
 
 		selection = 0;
 		selection2 = 0;
@@ -295,12 +296,17 @@ Record* recordEditor(Record input)
 				printf("Integer expected, please try again\n\n");
 				while ((c = getchar()) != '\n' && c != EOF) { } //from https://stackoverflow.com/questions/7898215/how-to-clear-input-buffer-in-c
 			}
+			else if (selection2 > 5 || selection2 < 1)
+			{
+				printf("Invalid selection\n\n");
+			}
 			else
 			{
 				input.rating = selection2;
 				done = 2;
 			}
 		}
+		else if (selection == 9) { done = 1; }
 		else
 		{
 			scanf("%s", selectionStr);
