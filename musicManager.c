@@ -173,6 +173,7 @@ void saveFile(List* pList)
 			}
 			pReader = pReader->pNext;
 		}
+		fclose(outfile);
 	}
 }
 
