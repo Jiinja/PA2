@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <Windows.h>
+#include <string.h>
+
 
 typedef struct duration
 {
@@ -39,9 +41,11 @@ void displayMenu();
 Node* makeNode(const Record* pNewData);
 int insertFront(List* pList, const Record* pNewData);
 void printList(List* pList);
-char* underscoreRemover(char* input);
+int numberReader(char* input, Duration* length);
 List* artistSearch(List* inputList, char* artist);
 void loadFile(List* pList);
 Record* recordEditor(Record input);
 void saveFile(List* pList);
 void playSong(Node** pList, char* songTitle);
+int recordDeleter(List* list, char* songTitle);
+int sortList(List* inputList, int choice);

@@ -140,10 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="PA2.h" />
+    <ClInclude Include="TestFunction.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
     <ClCompile Include="musicManager.c" />
+    <ClCompile Include="testFunctions.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="musicPlayList.csv" />

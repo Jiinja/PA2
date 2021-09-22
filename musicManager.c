@@ -54,6 +54,9 @@ int insertFront(List* pList, const Record* pNewData)
 {
 	Node* pMem = makeNode(pNewData); //copying address into makeNode, returns address of the Node
 	int success = 0;
+	if (pMem->data.rating > 5) pMem->data.rating = 5;
+	if (pMem->data.rating < 1) pMem->data.rating = 1;
+	if (pMem->data.timesPlayed < 0) pMem->data.timesPlayed = 0;
 	if (pMem != NULL)
 	{
 		success = 1; //malloc successful
@@ -73,7 +76,7 @@ void printList(List* pList)
 		printf("\nTitle            | Artist            | mm:ss | Album Title          | Genre   | Times Played | Rating\n");
 		while (pPrinter != NULL)
 		{
-			printf("%16s | %17s | %2d:%2d | %20s | %7s | %3d          | %d\n",
+			printf("%16s | %17s | %2d:%2d | %20s | %7s | %3d          | %d/5\n",
 				pPrinter->data.songTitle,
 				pPrinter->data.artist,
 				pPrinter->data.songLength.minutes,
@@ -177,16 +180,30 @@ void saveFile(List* pList)
 	}
 }
 
-char* underscoreRemover(char* input)
+int numberReader(char* input, Duration* length)
 {
-	for (int i = 0; i < strlen(input); i++)
-	{
-		if (input[i] == '_')
-		{
-			input[i] = ' ';
-		}
+	int result = 0;
+	int i = 0;
+	int j = 0;
+	char reader[5]; 
+	strcpy(reader, input);
+	char saver[5];
+	while (reader[i] != ':') {
+		saver[i] = reader[i];
+		i++;
 	}
-	return input;
+	saver[i] = '\0';
+	(*length).minutes = atoi(saver);
+	i++;
+	while (reader[i] != '\0') {
+		saver[j] = reader[i];
+		i++;
+		j++;
+	}
+	saver[j] = '\0';
+	(*length).seconds = atoi(saver);
+	if(((*length).seconds != NULL) && ((*length).minutes != NULL)) result = 1;
+	return result;
 }
 
 Record* recordEditor(Record input)
@@ -217,33 +234,33 @@ Record* recordEditor(Record input)
 		scanf("%d", &selection);
 		if (selection == 1)  //edit title
 		{
-			printf("Please type the edited Title - type \"_\" for every space, please\n");
-			scanf("%s", selectionStr);
-			strcpy(selectionStr, underscoreRemover(selectionStr));
+			printf("Please type the edited Title\n");
+			scanf(" %[^\n]s", selectionStr);
+			strcpy(selectionStr, selectionStr);
 			strcpy(input.songTitle, selectionStr);
 			done = 2;
 		}
 		else if (selection == 2) //edit artist
 		{
-			printf("Please type the edited Artist - type \"_\" for every space, please\n");
-			scanf("%s", selectionStr);
-			strcpy(selectionStr, underscoreRemover(selectionStr));
+			printf("Please type the edited Artist\n");
+			scanf(" %[^\n]s", selectionStr);
+			strcpy(selectionStr, selectionStr);
 			strcpy(input.artist, selectionStr);
 			done = 2;
 		}
 		else if (selection == 3) //edit album title
 		{
-			printf("Please type the edited Album title - type \"_\" for every space, pleasen\n");
-			scanf("%s", selectionStr);
-			strcpy(selectionStr, underscoreRemover(selectionStr));
+			printf("Please type the edited Album title\n");
+			scanf(" %[^\n]s", selectionStr);
+			strcpy(selectionStr, selectionStr);
 			strcpy(input.albumTitle, selectionStr);
 			done = 2;
 		}
 		else if (selection == 4) //edit genre
 		{
-			printf("Please type the edited Genre - type \"_\" for every space, please\n");
-			scanf("%s", selectionStr);
-			strcpy(selectionStr, underscoreRemover(selectionStr));
+			printf("Please type the edited Genre\n");
+			scanf(" %[^\n]s", selectionStr);
+			strcpy(selectionStr, selectionStr);
 			strcpy(input.genre, selectionStr);
 			done = 2;
 		}
@@ -279,9 +296,10 @@ Record* recordEditor(Record input)
 		{
 			printf("Please type the edited Times Played\n");
 			check = scanf("%d", &selection2);
-			if (check != 1) {
+			if (check != 1) 
+			{
 				printf("Integer expected, please try again\n\n");
-				while ((c = getchar()) != '\n' && c != EOF) { } //from https://stackoverflow.com/questions/7898215/how-to-clear-input-buffer-in-c
+				while ((c = getchar()) != '\n' && c != EOF) {} //from https://stackoverflow.com/questions/7898215/how-to-clear-input-buffer-in-c
 			}
 			else
 			{
@@ -291,26 +309,26 @@ Record* recordEditor(Record input)
 		}
 		else if (selection == 8) //edit rating
 		{
-			printf("Please type the edited Rating\n");
-			check = scanf("%d", &selection2);
-			if (check != 1) {
-				printf("Integer expected, please try again\n\n");
-				while ((c = getchar()) != '\n' && c != EOF) { } //from https://stackoverflow.com/questions/7898215/how-to-clear-input-buffer-in-c
-			}
-			else if (selection2 > 5 || selection2 < 1)
-			{
-				printf("Invalid selection\n\n");
-			}
-			else
-			{
-				input.rating = selection2;
-				done = 2;
-			}
+		printf("Please type the edited Rating\n");
+		check = scanf("%d", &selection2);
+		if (check != 1) {
+			printf("Integer expected, please try again\n\n");
+			while ((c = getchar()) != '\n' && c != EOF) {} //from https://stackoverflow.com/questions/7898215/how-to-clear-input-buffer-in-c
+		}
+		else if (selection2 > 5 || selection2 < 1)
+		{
+			printf("Invalid selection\n\n");
+		}
+		else
+		{
+			input.rating = selection2;
+			done = 2;
+		}
 		}
 		else if (selection == 9) { done = 1; }
 		else
 		{
-			scanf("%s", selectionStr);
+		scanf("%s", selectionStr);
 		}
 		if (done == 2)
 		{
@@ -356,7 +374,7 @@ void playSong(Node** pList, char* songTitle)
 		Sleep(1000);
 	}
 	pPlayer = *pList;
-	while (strcmp(pPlayer->data.songTitle,pChecker->data.songTitle) != 0)
+	while (strcmp(pPlayer->data.songTitle, pChecker->data.songTitle) != 0)
 	{
 		printf("Now Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d(+1) \n\n",
 			pPlayer->data.songTitle,
@@ -372,4 +390,123 @@ void playSong(Node** pList, char* songTitle)
 		pPlayer = pPlayer->pNext;
 		Sleep(1000);
 	}
+}
+
+int recordDeleter(List* list, char* songTitle)
+{
+	Node* pDeleter = list->pHead;
+	Node* pStitcher = NULL;
+	while (pDeleter != NULL && strcmp(pDeleter->data.songTitle, songTitle) != 0)
+	{
+		pStitcher = pDeleter;
+		pDeleter = pDeleter->pNext;
+	}
+	if (pDeleter == NULL) return 0;
+	else 
+	{
+		if (pDeleter->pPrev == NULL) {  //if first, then set pdeleter.pnext to phead
+			list->pHead = pDeleter->pNext;
+		}
+		else
+		{
+			Node * pStitcher = pDeleter->pPrev; //else set pSticher to pdeleter.pprev
+			pStitcher->pNext = pDeleter->pNext; //pprev.pnext = pnext (skipping over pDeleter)
+		}
+		if (pDeleter->pNext != NULL) pDeleter->pNext->pPrev = pStitcher; //if not the end of the list, set next previous ptr to prev
+		pDeleter->pNext = NULL; //snipping branches 
+		pDeleter->pPrev = NULL;
+		free(pDeleter); //freeing the node
+		return 1;
+	}
+}
+
+//same method for sort or shuffle
+int sortList(List* inputList, int choice)
+{
+	int success = 0;
+	int doneSwitching = 0;
+	Node* pCur = inputList->pHead;
+	Node* pPrev = NULL;
+	Record temp;
+	if (pCur == NULL || pCur->pNext == NULL) return 0; //if the list is empty or only has 1 record, it is already "sorted"
+	pPrev = pCur; //making pPrev != NULL
+	pCur = pCur->pNext;
+	while (success != 1) {
+		doneSwitching = 0;
+		switch (choice) { //put the switch in the first while loop
+		case 0:
+			//sort artist a-z
+			while (pCur != NULL) //while not at end of list
+			{
+				if (strcmp(pCur->data.artist, pPrev->data.artist) < 0) {
+					//switch pCur & pPrev data 
+					temp = pPrev->data;
+					pPrev->data = pCur->data;
+					pCur->data = temp;
+					doneSwitching++;
+				}
+				pPrev = pCur;
+				pCur = pCur->pNext;
+			}
+			if (doneSwitching == 0) success = 1; //if none were swapped then it is sorted
+			pCur = inputList->pHead->pNext;
+			pPrev = inputList->pHead;
+			break;
+		case 1:
+			//sort album title a-z
+			while (pCur != NULL) //while not at end of list
+			{
+				if (strcmp(pCur->data.albumTitle, pPrev->data.albumTitle) < 0) {
+					//switch pCur & pPrev data 
+					temp = pPrev->data;
+					pPrev->data = pCur->data;
+					pCur->data = temp;
+					doneSwitching++;
+				}
+				pPrev = pCur;
+				pCur = pCur->pNext;
+			}
+			if (doneSwitching == 0) success = 1; //if none were swapped then it is sorted
+			pCur = inputList->pHead->pNext;
+			pPrev = inputList->pHead;
+			break;
+		case 2:
+			//sort by rating 5-1
+			while (pCur != NULL) //while not at end of list
+			{
+				if (pCur->data.rating > pPrev->data.rating) {
+					//switch pCur & pPrev data 
+					temp = pPrev->data;
+					pPrev->data = pCur->data;
+					pCur->data = temp;
+					doneSwitching++;
+				}
+				pPrev = pCur;
+				pCur = pCur->pNext;
+			}
+			if (doneSwitching == 0) success = 1; //if none were swapped then it is sorted
+			pCur = inputList->pHead->pNext;
+			pPrev = inputList->pHead;
+			break;
+		case 3:
+			//sort times play largest-smallest
+			while (pCur != NULL) //while not at end of list
+			{
+				if (pCur->data.timesPlayed > pPrev->data.timesPlayed) {
+					//switch pCur & pPrev data 
+					temp = pPrev->data;
+					pPrev->data = pCur->data;
+					pCur->data = temp;
+					doneSwitching++;
+				}
+				pPrev = pCur;
+				pCur = pCur->pNext;
+			}
+			if (doneSwitching == 0) success = 1;
+			pCur = inputList->pHead->pNext;
+			pPrev = inputList->pHead;
+			break;
+		}
+	}
+	return success;
 }

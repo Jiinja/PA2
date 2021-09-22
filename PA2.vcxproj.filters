@@ -18,12 +18,18 @@
     <ClInclude Include="PA2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestFunction.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="musicManager.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testFunctions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
