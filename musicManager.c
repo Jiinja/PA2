@@ -9,7 +9,7 @@
 
 
 
-#include "PA2.h"
+#include "TestFunction.h"
 
 void displayMenu()
 {
@@ -73,10 +73,10 @@ void printList(List* pList)
 	{
 		Node* pPrinter = pList->pHead;
 		char record[100] = "";
-		printf("\nTitle            | Artist            | mm:ss | Album Title          | Genre   | Times Played | Rating\n");
+		printf("\n        Title        |       Artist      | mm:ss |      Album Title     |    Genre   | Times Played | Rating\n");
 		while (pPrinter != NULL)
 		{
-			printf("%16s | %17s | %2d:%2d | %20s | %7s | %3d          | %d/5\n",
+			printf("%20s | %17s | %2d:%2d | %20s | %10s | %3d          | %d/5\n",
 				pPrinter->data.songTitle,
 				pPrinter->data.artist,
 				pPrinter->data.songLength.minutes,
@@ -347,19 +347,24 @@ Record* recordEditor(Record input)
 
 void playSong(Node** pList, char* songTitle)
 {
+	printf("\n");
 	Node* pPlayer = *pList;
 	Node* pChecker = *pList;
 	if (songTitle[0] != '\0')
 	{
-		while (strcmp(pPlayer->data.songTitle, songTitle) != 0)
+		while (pPlayer != NULL && strcmp(pPlayer->data.songTitle, songTitle) != 0)
 		{
 			pPlayer = pPlayer->pNext;
+		}
+		if (pPlayer == NULL) {
+			printf("Song not found\n\n");
+			return;
 		}
 		pChecker = pPlayer;
 	}
 	while (pPlayer != NULL)
 	{
-		printf("Now Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d (+1)\n\n",
+		printf("\rNow Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d (+1)",
 			pPlayer->data.songTitle,
 			pPlayer->data.artist,
 			pPlayer->data.songLength.minutes,
@@ -372,11 +377,12 @@ void playSong(Node** pList, char* songTitle)
 		pPlayer->data.timesPlayed++;
 		pPlayer = pPlayer->pNext;
 		Sleep(1000);
+		printf("\33[2K"); //found on stack overflow: code for clearing the entire line
 	}
 	pPlayer = *pList;
 	while (strcmp(pPlayer->data.songTitle, pChecker->data.songTitle) != 0)
 	{
-		printf("Now Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d(+1) \n\n",
+		printf("\rNow Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d(+1)",
 			pPlayer->data.songTitle,
 			pPlayer->data.artist,
 			pPlayer->data.songLength.minutes,
@@ -389,7 +395,9 @@ void playSong(Node** pList, char* songTitle)
 		pPlayer->data.timesPlayed++;
 		pPlayer = pPlayer->pNext;
 		Sleep(1000);
+		printf("\33[2K"); //found on stack overflow: code for clearing the entire line
 	}
+	printf("\n");
 }
 
 int recordDeleter(List* list, char* songTitle)
@@ -509,4 +517,95 @@ int sortList(List* inputList, int choice)
 		}
 	}
 	return success;
+}
+
+void shuffleOrder(List inputList) { //generates a random order and sends it to the shuffle function;
+	int size = 0;
+	Node* pCur = inputList.pHead;
+	int rando = 0;
+	char tempStr[10];
+	char order[100] = "";
+	while (pCur != NULL) //counting the size of the list
+	{
+		size++;
+		pCur = pCur->pNext;
+	}
+	srand(time(NULL));
+	int tempSize = size;
+	while (tempSize != 0)
+	{
+		rando = 1 + (rand() % size);
+		sprintf(tempStr, "%d,", rando);
+		if (strstr(order, tempStr) == NULL) { //if the order doesn't already have the song number in it
+			if (tempSize == 1) strcat(order, strtok(tempStr, ",")); //if last item in list, no need for ","
+			else strcat(order, tempStr); //if not last item in list, keep "/"
+		}
+		else tempSize++; //if nothing was added to the order then size shouldnt go down
+		tempSize--;
+	}
+	shuffle(inputList, order, size);
+}
+
+void shuffle(List inputList, char* order, int size) //given a list, order (format: "4,1,3,2"), and size of list it plays the songs in the order
+{
+	printf("\n");
+	char queue[100] = "";
+	strcpy(queue, order);
+	Node* pPlayer = inputList.pHead;
+	int currentSong = 0;
+	int nextSong = 0;
+	int path = 0;
+	char temp[100] = "";
+	strcpy(temp, strtok(queue, ","));
+	currentSong = atoi(temp); //queuing up the first song 
+	for (int j = currentSong; j > 1; j--) pPlayer = pPlayer->pNext;
+	printf("Now Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d(+1)",
+		pPlayer->data.songTitle,
+		pPlayer->data.artist,
+		pPlayer->data.songLength.minutes,
+		pPlayer->data.songLength.seconds,
+		pPlayer->data.albumTitle,
+		pPlayer->data.genre,
+		pPlayer->data.rating,
+		pPlayer->data.timesPlayed
+	);
+	Sleep(1000);
+	printf("\33[2K"); //found on stack overflow: code for clearing the entire line
+	size--;
+	while (size != 0)
+	{
+		if (size > 1) nextSong = atoi(strtok(NULL, ",")); //getting the location of the next song
+		else nextSong = atoi(strtok(NULL, "\0"));
+		path = currentSong - nextSong; //getting the path to the next song
+		if (path > 0) //move to the left
+		{ 
+			for (path; path > 0; path--) 
+			{ 
+				pPlayer = pPlayer->pPrev;
+			}
+		}
+		else if (path < 0) //move to the right
+		{ 
+			for (path; path < 0; path++) 
+			{
+				pPlayer = pPlayer->pNext;
+			}
+		}
+		printf("\rNow Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d(+1)",
+			pPlayer->data.songTitle,
+			pPlayer->data.artist,
+			pPlayer->data.songLength.minutes,
+			pPlayer->data.songLength.seconds,
+			pPlayer->data.albumTitle,
+			pPlayer->data.genre,
+			pPlayer->data.rating,
+			pPlayer->data.timesPlayed
+		);
+		Sleep(1000);
+		printf("\33[2K"); //found on stack overflow: code for clearing the entire line
+		pPlayer->data.timesPlayed++;
+		size--;
+		currentSong = nextSong;
+	}
+	printf("\n");
 }

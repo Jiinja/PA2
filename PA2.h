@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <string.h>
+#include <time.h>
 
 
 typedef struct duration
@@ -49,3 +50,5 @@ void saveFile(List* pList);
 void playSong(Node** pList, char* songTitle);
 int recordDeleter(List* list, char* songTitle);
 int sortList(List* inputList, int choice);
+void shuffleOrder(List inputList);
+void shuffle(List inputList, char* order, int size);

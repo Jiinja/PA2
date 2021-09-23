@@ -1,11 +1,12 @@
 /*****************************************************************************************
 * Programmer: Josh Maloy                                                                 *
 * Class: CptS 122, Fall 2021; Lab Section 1                                              *
-* Programming Assignment: PA1                                                            *
+* Programming Assignment: PA3                                                            *
 * Date: September 1, 2021                                                                *
 * Description: This program displays a user interface in a commandline window with       *
 * multiple controls simulating a music player. It can load from a file, save to a file,  *
 * edit songs, rate songs, print out the list of songs, "play" songs, and exit.           *
+* Additionally, it can insert, delete, sort, and shuffle songs in the record player      *
 ******************************************************************************************/
 
 
@@ -241,7 +242,7 @@ int main()
 
 		else if (userInput == 10) //shuffle
 		{
-			printf("This option is not yet complete\n\n");
+			shuffleOrder(list);
 		}
 
 		else if (userInput == 11) //exit
