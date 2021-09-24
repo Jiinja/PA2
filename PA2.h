@@ -51,4 +51,5 @@ void playSong(Node** pList, char* songTitle);
 int recordDeleter(List* list, char* songTitle);
 int sortList(List* inputList, int choice);
 void shuffleOrder(List inputList);
-void shuffle(List inputList, char* order, int size);
+void shuffle(List inputList, int order[], int size);
+int contains(int input[], int number, int size);

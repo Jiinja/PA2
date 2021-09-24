@@ -60,7 +60,7 @@ int main()
 			{
 				printf("Please type the Artist name in the format: [Last, First]\n");
 				scanf(" %[^\n]s", userInputStr);
-				printf("%s", userInputStr);
+				printf("\nSong's by %s:", userInputStr);
 				List tempList = *artistSearch(&list, userInputStr); //calling the artist search function - returns a list of songs made by the given artiste
 				printList(&tempList);
 				printf("\n\n");
@@ -103,8 +103,7 @@ int main()
 
 				printf("\nPlease type the rating of of the song from 1-5:\n");
 				scanChecker = scanf("%d", &rating);
-				if (rating > 0 && rating < 6) tempRecord.rating = rating;
-				else tempRecord.rating = 0;
+				tempRecord.rating = rating;
 				insertFront(&list, &tempRecord);
 				printf("\nRecord inserted successfully!\n\n");
 				scanChecker = -1;

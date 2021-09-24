@@ -62,6 +62,7 @@ void testShuffle(void)
 	insertFront(&testList, &testRecord);
 	testRecord.timesPlayed = 1;
 	insertFront(&testList, &testRecord);
-	shuffle(testList, "3,1,2", 3);
+	int order[3] = { 3, 1, 2 };
+	shuffle(testList, order, 3);
 	printf("\nIf times played of the three were in order 3-1-2, Shuffle was successful\n\n");
 }

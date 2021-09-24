@@ -55,7 +55,7 @@ int insertFront(List* pList, const Record* pNewData)
 	Node* pMem = makeNode(pNewData); //copying address into makeNode, returns address of the Node
 	int success = 0;
 	if (pMem->data.rating > 5) pMem->data.rating = 5;
-	if (pMem->data.rating < 1) pMem->data.rating = 1;
+	else if (pMem->data.rating < 1) pMem->data.rating = 1;
 	if (pMem->data.timesPlayed < 0) pMem->data.timesPlayed = 0;
 	if (pMem != NULL)
 	{
@@ -145,6 +145,11 @@ void loadFile(List* pList)
 
 void saveFile(List* pList)
 {
+	if (pList->pHead == NULL) 
+	{
+		printf("Error: List Empty\n\n");
+		return;
+	}
 	FILE* outfile = fopen("musicPlayList.csv", "w");
 	Node* pReader = pList->pHead;
 	if (outfile != NULL)
@@ -347,6 +352,11 @@ Record* recordEditor(Record input)
 
 void playSong(Node** pList, char* songTitle)
 {
+	if (*pList == NULL)
+	{
+		printf("Error: List Empty\n\n");
+		return;
+	}
 	printf("\n");
 	Node* pPlayer = *pList;
 	Node* pChecker = *pList;
@@ -428,7 +438,6 @@ int recordDeleter(List* list, char* songTitle)
 	}
 }
 
-//same method for sort or shuffle
 int sortList(List* inputList, int choice)
 {
 	int success = 0;
@@ -519,73 +528,57 @@ int sortList(List* inputList, int choice)
 	return success;
 }
 
-void shuffleOrder(List inputList) { //generates a random order and sends it to the shuffle function;
+void shuffleOrder(List inputList) { //generates a random order and sends it to the shuffle function; NEED TO CHANGE TO ADDING THE SONG TO AN ARRAY SIZE SIZE
+	if (inputList.pHead == NULL) 
+	{
+		printf("Error: List Empty\n\n");
+		return;
+	}
 	int size = 0;
 	Node* pCur = inputList.pHead;
 	int rando = 0;
-	char tempStr[10];
-	char order[100] = "";
 	while (pCur != NULL) //counting the size of the list
 	{
 		size++;
 		pCur = pCur->pNext;
 	}
+	int order[100]; //tried to make the order array the same size as the list, but c is trash and even if you use a const int its not const
 	srand(time(NULL));
-	int tempSize = size;
-	while (tempSize != 0)
+	int orderSize = 0;
+	int randomNumberGeneratorSucks = 0;
+	while (orderSize != size && orderSize != 100) //array size is 100, shuffle limit is 100
 	{
 		rando = 1 + (rand() % size);
-		sprintf(tempStr, "%d,", rando);
-		if (strstr(order, tempStr) == NULL) { //if the order doesn't already have the song number in it
-			if (tempSize == 1) strcat(order, strtok(tempStr, ",")); //if last item in list, no need for ","
-			else strcat(order, tempStr); //if not last item in list, keep "/"
+		if (size == 0 || contains(&order, rando, orderSize) == 0) { //if the order doesn't already have the song number in it
+			order[orderSize] = rando;
+			orderSize++;
 		}
-		else tempSize++; //if nothing was added to the order then size shouldnt go down
-		tempSize--;
 	}
+	printf("\33[2K");
 	shuffle(inputList, order, size);
 }
 
-void shuffle(List inputList, char* order, int size) //given a list, order (format: "4,1,3,2"), and size of list it plays the songs in the order
-{
+void shuffle(List inputList, int order[], int size) //given an array of the order in which to plays songs+size of list it plays the songs in the order LIMIT SIZE: 100
+{ 
 	printf("\n");
-	char queue[100] = "";
-	strcpy(queue, order);
 	Node* pPlayer = inputList.pHead;
-	int currentSong = 0;
-	int nextSong = 0;
+	int currentSong = 1;
+	int songsPlayed = 0;
+	int nextSong = order[songsPlayed];
 	int path = 0;
-	char temp[100] = "";
-	strcpy(temp, strtok(queue, ","));
-	currentSong = atoi(temp); //queuing up the first song 
-	for (int j = currentSong; j > 1; j--) pPlayer = pPlayer->pNext;
-	printf("Now Playing: %s by %s | %d:%d | Album: %s Genre %s [%d/5] Times Played: %d(+1)",
-		pPlayer->data.songTitle,
-		pPlayer->data.artist,
-		pPlayer->data.songLength.minutes,
-		pPlayer->data.songLength.seconds,
-		pPlayer->data.albumTitle,
-		pPlayer->data.genre,
-		pPlayer->data.rating,
-		pPlayer->data.timesPlayed
-	);
-	Sleep(1000);
-	printf("\33[2K"); //found on stack overflow: code for clearing the entire line
-	size--;
-	while (size != 0)
+	
+	while (songsPlayed != size) 
 	{
-		if (size > 1) nextSong = atoi(strtok(NULL, ",")); //getting the location of the next song
-		else nextSong = atoi(strtok(NULL, "\0"));
-		path = currentSong - nextSong; //getting the path to the next song
-		if (path > 0) //move to the left
-		{ 
-			for (path; path > 0; path--) 
-			{ 
+		path = currentSong - nextSong; //first song, 0-nextSong = nextSong
+		if (path > 0) //move to the left path times
+		{
+			for (path; path > 0; path--)
+			{
 				pPlayer = pPlayer->pPrev;
 			}
 		}
-		else if (path < 0) //move to the right
-		{ 
+		else if (path < 0) //move to the right path times
+		{
 			for (path; path < 0; path++) 
 			{
 				pPlayer = pPlayer->pNext;
@@ -599,13 +592,25 @@ void shuffle(List inputList, char* order, int size) //given a list, order (forma
 			pPlayer->data.albumTitle,
 			pPlayer->data.genre,
 			pPlayer->data.rating,
-			pPlayer->data.timesPlayed
-		);
+			pPlayer->data.timesPlayed);
 		Sleep(1000);
 		printf("\33[2K"); //found on stack overflow: code for clearing the entire line
 		pPlayer->data.timesPlayed++;
-		size--;
+		songsPlayed++;
 		currentSong = nextSong;
+		nextSong = order[songsPlayed];
 	}
 	printf("\n");
+
+	//for (int i = 0; i < size; i++) printf("%d->", order[i]); //this prints out the order it played so i could double check
+}
+
+int contains(int input[], int number, int size)
+{
+	if (size == 0) return 0;
+	for (int j = 0; j < size; j++)
+	{
+		if (input[j] == number) return 1;
+	}
+	return 0;
 }
